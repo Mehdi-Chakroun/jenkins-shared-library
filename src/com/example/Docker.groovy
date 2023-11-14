@@ -17,7 +17,12 @@ class Docker implements Serializable {
     def dockerPush(String imageName) {
         script.sh "docker push ${imageName}"
     }
-    def deleteImage(String imageName) {
+    def deleteLocalImage(String imageName) {
         script.sh "docker rmi ${imageName}"
+    }
+    def deleteUntaggedImage() {
+        script.sh "UNTAGGED_IMAGES=\$(aws ecr list-images --repository-name workerservice --filter tagStatus=UNTAGGED --query 'imageIds[*].imageDigest' --output json)"
+        script.sh "LATEST_IMAGE=\$(aws ecr list-images --repository-name workerservice --filter tagStatus=TAGGED --query 'imageIds[?imageTag==`latest`].imageDigest' --output json)"
+        script.sh "aws ecr batch-delete-image --repository-name workerservice --image-ids $UNTAGGED_IMAGES $EXCLUDE_LATEST"
     }
 }
