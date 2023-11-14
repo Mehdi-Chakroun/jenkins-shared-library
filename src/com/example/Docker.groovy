@@ -23,7 +23,7 @@ class Docker implements Serializable {
     def deleteUntaggedImage() {
         script.sh "UNTAGGED_IMAGES=\$(aws ecr list-images --repository-name workerservice --filter tagStatus=UNTAGGED --query 'imageIds[*].imageDigest' --output json)"
         script.sh "LATEST_IMAGE=\$(aws ecr list-images --repository-name workerservice --filter tagStatus=TAGGED --query 'imageIds[?imageTag==`latest`].imageDigest' --output json)"
-        script.sh "EXCLUDE_LATEST=\"--image-ids imageDigest=${LATEST_IMAGE}\""
+        script.sh "EXCLUDE_LATEST=\"--image-ids imageDigest=\${LATEST_IMAGE}\""
         script.sh "aws ecr batch-delete-image --repository-name workerservice --image-ids $UNTAGGED_IMAGES $EXCLUDE_LATEST"
     }
 }
