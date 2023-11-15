@@ -21,10 +21,10 @@ class Docker implements Serializable {
         script.sh "docker rmi ${imageName}"
     }
     def deleteUntaggedImage(String repositoryName) {
-        script.sh "UNTAGGED_IMAGES=\$(aws ecr list-images --repository-name ${repositoryName} --filter tagStatus=UNTAGGED --query 'imageIds[*].imageDigest' --output json)"
-        script.sh "LATEST_IMAGE=\$(aws ecr list-images --repository-name ${repositoryName} --filter tagStatus=TAGGED --query 'imageIds[?imageTag==`latest`].imageDigest' --output json)"
-        script.sh "EXCLUDE_LATEST='--image-ids imageDigest=\${LATEST_IMAGE}'"
-        script.sh "aws ecr batch-delete-image --repository-name ${repositoryName} --image-ids \${UNTAGGED_IMAGES} \${EXCLUDE_LATEST}"
+        def untaggedImages = script.sh(script: "aws ecr list-images --repository-name ${repositoryName} --filter tagStatus=UNTAGGED --query 'imageIds[*].imageDigest' --output json", returnStdout: true).trim()
+        def latestImage = script.sh(script: "aws ecr list-images --repository-name ${repositoryName} --filter tagStatus=TAGGED --query 'imageIds[?imageTag==`latest`].imageDigest' --output json", returnStdout: true).trim()
+        def excludeLatest = "--image-ids imageDigest=${latestImage}"
+        script.sh "aws ecr batch-delete-image --repository-name ${repositoryName} --image-ids ${untaggedImages} ${excludeLatest}"
     }
     def awsDockerLogin(String registryURI, String region) {
         script.sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registryURI}"
