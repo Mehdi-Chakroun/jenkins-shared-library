@@ -21,7 +21,7 @@ class Docker implements Serializable {
         script.sh "docker rmi ${imageName}"
     }
     def deleteUntaggedImage(String repositoryName) {
-        script.sh "aws ecr batch-delete-image --repository-name ${repositoryName} --image-ids \$(aws ecr describe-images --repository-name ${repositoryName} --query 'imageDetails[?imageTags==null].imageDigest' --output json)"
+        script.sh "aws ecr batch-delete-image --repository-name ${repositoryName} --image-ids \"\$(aws ecr describe-images --repository-name ${repositoryName} --query 'imageDetails[?imageTags==null].[imageDigest]' --output json)\""
     }
     def awsDockerLogin(String registryURI, String region) {
         script.sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registryURI}"
