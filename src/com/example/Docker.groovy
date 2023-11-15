@@ -26,4 +26,7 @@ class Docker implements Serializable {
         script.sh "EXCLUDE_LATEST='--image-ids imageDigest=\${LATEST_IMAGE}'"
         script.sh "aws ecr batch-delete-image --repository-name ${repositoryName} --image-ids \$UNTAGGED_IMAGES \$EXCLUDE_LATEST"
     }
+    def awsDockerLogin(String registryURI, String region) {
+        script.sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registryURI}"
+    }
 }
