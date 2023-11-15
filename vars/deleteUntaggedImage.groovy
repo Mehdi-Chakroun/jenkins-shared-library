@@ -1,5 +1,5 @@
 import com.example.Docker
 
-def call() {
-    return new Docker(this).deleteUntaggedImage()
+def call(String repositoryName) {
+    return new Docker(this).deleteUntaggedImage(repositoryName)
 }
